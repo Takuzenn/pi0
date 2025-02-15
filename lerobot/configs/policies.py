@@ -16,7 +16,7 @@ from lerobot.configs.types import FeatureType, NormalizationMode, PolicyFeature
 
 # Generic variable that is either PreTrainedConfig or a subclass thereof
 T = TypeVar("T", bound="PreTrainedConfig")
-
+ifPrint = True
 
 @dataclass
 class PreTrainedConfig(draccus.ChoiceRegistry, HubMixin, abc.ABC):
@@ -114,15 +114,27 @@ class PreTrainedConfig(draccus.ChoiceRegistry, HubMixin, abc.ABC):
         revision: str | None = None,
         **policy_kwargs,
     ) -> T:
+        if ifPrint: print(f"pretrained_name_or_path is {pretrained_name_or_path}")
         model_id = str(pretrained_name_or_path)
+        if ifPrint: print(f"model_id is {model_id}")
         config_file: str | None = None
+        if ifPrint: print(f"config_file is {config_file}")
         if Path(model_id).is_dir():
+            if ifPrint: print(f"os.listdir(model_id) is {os.listdir(model_id)}")
+            if ifPrint: print(f"CONFIG_NAME is {CONFIG_NAME}")
             if CONFIG_NAME in os.listdir(model_id):
                 config_file = os.path.join(model_id, CONFIG_NAME)
+                if ifPrint: print(f"config_file is {config_file}")
             else:
                 print(f"{CONFIG_NAME} not found in {Path(model_id).resolve()}")
         else:
             try:
+                if ifPrint: print(f"CONFIG_NAME is {CONFIG_NAME}")
+                if ifPrint: print(f"revision is {revision}")
+                if ifPrint: print(f"cache_dir is {cache_dir}")
+                if ifPrint: print(f"token is {token}")
+                if ifPrint: print(f"proxies is {proxies}")
+                if ifPrint: print(f"local_files_only is {local_files_only}")
                 config_file = hf_hub_download(
                     repo_id=model_id,
                     filename=CONFIG_NAME,
@@ -143,6 +155,9 @@ class PreTrainedConfig(draccus.ChoiceRegistry, HubMixin, abc.ABC):
         # HACK: this is very ugly, ideally we'd like to be able to do that natively with draccus
         # something like --policy.path (in addition to --policy.type)
         cli_overrides = policy_kwargs.pop("cli_overrides", [])
+        if ifPrint: print(f"cls is {cls}")
+        if ifPrint: print(f"cli_overrides is {cli_overrides}")
+        if ifPrint: print(f"config_file is {config_file}")
         config = draccus.parse(cls, config_file, args=cli_overrides)
         print("Loaded config in policies file:", config)
         return config

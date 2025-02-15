@@ -20,6 +20,7 @@ from lerobot.configs.policies import PreTrainedConfig
 
 TRAIN_CONFIG_NAME = "train_config.json"
 
+ifPrint = True
 
 @dataclass
 class OfflineConfig:
@@ -139,11 +140,16 @@ class TrainPipelineConfig(HubMixin):
 
         # HACK: We parse again the cli args here to get the pretrained paths if there was some.
         policy_path = parser.get_path_arg("policy")
+        if ifPrint: print(f"policy_path is {policy_path}")
         if policy_path:
             # Only load the policy config
             cli_overrides = parser.get_cli_overrides("policy")
+            if ifPrint: print(f"cli_overrides is {cli_overrides}")
             self.policy = PreTrainedConfig.from_pretrained(policy_path, cli_overrides=cli_overrides)
+            if ifPrint: print(f"self.policy is {self.policy}")
             self.policy.pretrained_path = policy_path
+            if ifPrint: print(f"self.policy.pretrained_path is {self.policy.pretrained_path}")
+
         elif self.resume:
             # The entire train config is already loaded, we just need to get the checkpoint dir
             config_path = parser.parse_arg("config_path")
@@ -179,8 +185,9 @@ class TrainPipelineConfig(HubMixin):
             raise ValueError("Optimizer and Scheduler must be set when the policy presets are not used.")
         elif self.use_policy_training_preset and not self.resume:
             self.optimizer = self.policy.get_optimizer_preset()
+            if ifPrint: print(f"self.policy.get_optimizer_preset() is {self.policy.get_optimizer_preset()}")
             self.scheduler = self.policy.get_scheduler_preset()
-
+            if ifPrint: print(f"self.policy.get_scheduler_preset() is {self.policy.get_scheduler_preset()}")
     @classmethod
     def __get_path_fields__(cls) -> list[str]:
         """This enables the parser to load config from the policy using `--policy.path=local/dir`"""

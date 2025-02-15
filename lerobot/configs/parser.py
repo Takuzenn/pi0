@@ -11,7 +11,7 @@ from lerobot.common.utils.utils import has_method
 
 PATH_KEY = "path"
 draccus.set_config_type("json")
-
+ifPrint = True
 
 def get_cli_overrides(field_name: str, args: Sequence[str] | None = None) -> list[str] | None:
     """Parses arguments from cli at a given nested attribute level.
@@ -102,22 +102,37 @@ def wrap(config_path: Path | None = None):
         @wraps(fn)
         def wrapper_inner(*args, **kwargs):
             argspec = inspect.getfullargspec(fn)
+            if ifPrint: print(f"argspec is {argspec}")
             argtype = argspec.annotations[argspec.args[0]]
+            if ifPrint: print(f"argtype is {argtype}")
             if len(args) > 0 and type(args[0]) is argtype:
                 cfg = args[0]
+                if ifPrint: print(f"cfg is {cfg}")
                 args = args[1:]
+                if ifPrint: print(f"args is {args}")
             else:
                 cli_args = sys.argv[1:]
+                if ifPrint: print(f"cli_args is {cli_args}")
                 config_path_cli = parse_arg("config_path", cli_args)
+                if ifPrint: print(f"config_path_cli is {config_path_cli}")
                 if has_method(argtype, "__get_path_fields__"):
                     path_fields = argtype.__get_path_fields__()
+                    if ifPrint: print(f"path_fields is {path_fields}")
                     cli_args = filter_path_args(path_fields, cli_args)
+                    if ifPrint: print(f"cli_args is {cli_args}")
                 if has_method(argtype, "from_pretrained") and config_path_cli:
                     cli_args = filter_arg("config_path", cli_args)
+                    if ifPrint: print(f"cli_args is {cli_args}")
                     cfg = argtype.from_pretrained(config_path_cli, cli_args=cli_args)
+                    if ifPrint: print(f"cfg is {cfg}")
                 else:
+                    if ifPrint: print(f"argtype is {argtype}")
+                    if ifPrint: print(f"config_path is {config_path}")
+                    if ifPrint: print(f"cli_args is {cli_args}")
                     cfg = draccus.parse(config_class=argtype, config_path=config_path, args=cli_args)
+                    if ifPrint: print(f"cfg is {cfg}")
             response = fn(cfg, *args, **kwargs)
+            if ifPrint: print(f"response is {response}")
             return response
 
         return wrapper_inner

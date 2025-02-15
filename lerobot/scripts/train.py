@@ -189,6 +189,7 @@ def log_eval_info(logger, info, step, cfg, dataset, is_online):
 @parser.wrap()
 def train(cfg: TrainPipelineConfig):
     print("Before from_pretrained call, cfg is:", cfg)
+
     cfg.validate()
     print("after from_pretrained call, cfg is:", cfg)
 
